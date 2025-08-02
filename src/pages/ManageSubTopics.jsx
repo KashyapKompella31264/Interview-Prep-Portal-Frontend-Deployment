@@ -14,6 +14,14 @@ const ManageSubTopics = () => {
   const [isEditingSubtopic, setIsEditingSubtopic] = useState(false);
   const [questionsData, setQuestionsData] = useState({});
   const [questionDetails, setQuestionDetails] = useState({});
+  const [newSubtopicTitle, setNewSubtopicTitle] = useState("");
+  const [newSubtopicList,setNewSubtopicList]=useState("");
+  const [showAddSubtopicForm, setShowAddSubtopicForm] = useState(false);
+  const [selectedQuestionIds, setSelectedQuestionIds] = useState([]);
+  const [showAddSubtopic, setShowAddSubtopic] = useState(false);
+
+const [editSelectedQuestionIds, setEditSelectedQuestionIds] = useState([]);
+
   const [newQuestionId, setNewQuestionId] = useState("");
   const token = localStorage.getItem("token");
 
@@ -88,10 +96,43 @@ const ManageSubTopics = () => {
       console.error("Error fetching subtopic/questions:", err);
     }
   };
-  
+  const handleAddSubtopic = async () => {
+  try {
+    const questionIdsArray = newSubtopicList
+      .split(',')
+      .map(id => id.trim())
+      .filter(id => id); // remove empty strings
+
+    const response = await fetch('https://interview-prep-portal-backend-application.onrender.com/admin/subTopic', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        title: newSubtopicTitle,
+        questions: questionIdsArray, // ✅ parsed question IDs
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to add subtopic');
+    }
+
+    const newSubtopic = await response.json();
+    setSubtopics(prev => [...prev, newSubtopic]);
+    setShowAddSubtopic(false);
+    setNewSubtopicTitle('');
+    setNewSubtopicList(''); // ✅ clear input
+  } catch (error) {
+    console.error('Error adding subtopic:', error);
+  }
+};
+
+
+
+
   const handleaddquestiontosubtopic =async(questionId,subtopicId)=>{
-    console.log("Subtopic to be added is:",subtopicId);
-    console.log("Question to be added is: ",questionId);
     try{
       const res=await fetch(`https://interview-prep-portal-backend-application.onrender.com/admin/subtopic/${subtopicId}/questions/${questionId}`,{
         method:'POST',
@@ -165,28 +206,37 @@ const ManageSubTopics = () => {
   };
 
   const handleSubtopicUpdate = async () => {
-    try {
-      const res = await fetch(`https://interview-prep-portal-backend-application.onrender.com/admin/subtopic/${subtopic.id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title: editTitle }),
-      });
+  try {
+    const response = await fetch(`http://localhost:8090/admin/subtopic/${editSubtopicId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+      body: JSON.stringify({
+        title: editTitle,
+        questions: editSelectedQuestionIds, // updated question IDs
+      }),
+    });
 
-      if (res.ok) {
-        alert("Subtopic updated successfully");
-        handleViewSubtopic(subtopic.id);
-        setIsEditingSubtopic(false);
-        setRefresh((prev) => !prev);
-      } else {
-        alert("Failed to update subtopic");
-      }
-    } catch {
-      alert("Error while updating");
+    if (!response.ok) {
+      throw new Error('Failed to update subtopic');
     }
-  };
+
+    const updatedSubtopic = await response.json();
+    setSubtopics(prev =>
+      prev.map(sub =>
+        sub.id === editSubtopicId ? updatedSubtopic : sub
+      )
+    );
+    setEditSubtopicId(null);
+    setEditTitle('');
+    setEditSelectedQuestionIds([]);
+  } catch (error) {
+    console.error('Error updating subtopic:', error);
+  }
+};
+
 
   const handleDeleteSubtopic = async (subtopicId) => {
     if (!window.confirm("Are you sure you want to delete this subtopic?")) return;
@@ -233,6 +283,29 @@ const ManageSubTopics = () => {
                 <button className="search-btn" onClick={handleSearch}>
                   Search
                 </button>
+                <button onClick={() => setShowAddSubtopicForm((prev) => !prev)}>Add a SubTopic</button>
+                {showAddSubtopicForm && (
+  <div className="add-subtopic-form">
+    <input
+      type="text"
+      placeholder="Enter Subtopic Title"
+      value={newSubtopicTitle}
+      onChange={(e) => setNewSubtopicTitle(e.target.value)}
+    />
+    <input
+      type="text"
+      placeholder="Enter Questions to be included comma separated"
+      value={newSubtopicList}
+      onChange={(e)=>setNewSubtopicList(e.target.value)}
+    />
+    <button className="save-btn" onClick={handleAddSubtopic}>Save</button>
+    <button className="cancel-btn" onClick={() => {
+      setShowAddSubtopicForm(false);
+      setNewSubtopicTitle("");
+    }}>Cancel</button>
+  </div>
+)}
+
               </div>
             </div>
           </div>

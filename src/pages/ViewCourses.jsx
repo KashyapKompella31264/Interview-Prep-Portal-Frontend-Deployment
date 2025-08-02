@@ -136,7 +136,8 @@ const ViewCourses = () => {
       const newCourse = {
         title: formData.title,
         description: formData.description,
-        instructors: formData.instructors.split(',').map(id => id.trim())
+        instructors: formData.instructors.split(',').map(id => id.trim()),
+        subTopics:formData.subTopics.split(',').map(id=>id.trim())
       };
 
       await fetch('https://interview-prep-portal-backend-application.onrender.com/admin/courses', {
@@ -169,7 +170,7 @@ const ViewCourses = () => {
         
         
         <main className="course-main">
-        <CourseSideBar/>
+        <AdminNavbar/>
           <div className="course-header">
           
             <h2>Course Management</h2>

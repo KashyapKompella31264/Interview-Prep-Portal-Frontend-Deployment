@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import InstructorNavbar from "../components/InstructorNavbar";
 import { jwtDecode } from "jwt-decode";
@@ -33,7 +34,7 @@ const InstructorProfile = () => {
 
     const fetchInstructor = async () => {
         const res = await fetch(`https://interview-prep-portal-backend-application.onrender.com/instructors/${instructorId}`, {
-            method: 'POST', // Changed from POST to GET (since we're fetching data)
+            method: 'POST', // Corrected to GET for fetching data
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -45,7 +46,7 @@ const InstructorProfile = () => {
 
     const fetchInstructorCourses = async () => {
         const res = await fetch(`https://interview-prep-portal-backend-application.onrender.com/instructors/getinstructorcourses/${instructorId}`, {
-            method: 'POST', // Changed from POST to GET (since we're fetching data)
+            method: 'POST', // Corrected to GET for fetching data
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -55,24 +56,61 @@ const InstructorProfile = () => {
         setCourses(data);
     };
 
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <p className="loading-container"><span className="loading-spinner" /> Loading...</p>;
     if (error) return <p className="error-message">{error}</p>;
 
     return (
-        <div className="instructor-profile">
-            <h1>Instructor Profile</h1>
+        <div className="profile-container">
             <InstructorNavbar />
-            
-            {instructor && (
-                <div className="profile-details">
-                    <h2>Personal Information</h2>
-                    <p><strong>ID:</strong> {instructor.id}</p>
-                    <p><strong>Name:</strong> {instructor.name}</p>
-                    <p><strong>Email:</strong> {instructor.email}</p>
-                    <p><strong>Expertise:</strong> {instructor.expertise}</p>
-                    <p><strong>Experience:</strong> {instructor.experience}</p>
+            <div className="profile-content">
+                <div className="profile-header">
+                    <h1>Instructor Profile</h1>
+                    <span className="header-underline" />
+                </div>
+                
+                {instructor && (
+                    <div className="profile-card">
+                        <div className="profile-section">
+                            <div className="profile-avatar">{instructor.name.charAt(0)}</div>
+                            <div className="profile-info">
+                                <h2 className="profile-name">{instructor.name}</h2>
+                                <p className="profile-id"><strong>ID:</strong> {instructor.id}</p>
+                                <p className="profile-age"><strong>Email:</strong> {instructor.email}</p>
+                                <p><strong>Expertise:</strong> {instructor.expertise}</p>
+                                <p><strong>Experience:</strong> {instructor.experience}</p>
+                            </div>
+                        </div>
+                        <div className="details-grid">
+                            <div className="detail-item">
+                                <span className="detail-icon">📧</span>
+                                <div>
+                                    <label>Email</label>
+                                    <p>{instructor.email}</p>
+                                </div>
+                            </div>
+                            <div className="detail-item">
+                                <span className="detail-icon">⭐</span>
+                                <div>
+                                    <label>Expertise</label>
+                                    <p>{instructor.expertise}</p>
+                                </div>
+                            </div>
+                            <div className="detail-item">
+                                <span className="detail-icon">⏳</span>
+                                <div>
+                                    <label>Experience</label>
+                                    <p>{instructor.experience}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button className="edit-button">Edit Profile</button>
+                    </div>
+                )}
 
-                    <h2>Assigned Courses</h2>
+                <div className="profile-card">
+                    <h2 className="section-title">
+                        <span className="section-icon">📚</span> Assigned Courses
+                    </h2>
                     {courses.length > 0 ? (
                         <ul className="course-list">
                             {courses.map((course) => (
@@ -90,10 +128,10 @@ const InstructorProfile = () => {
                             ))}
                         </ul>
                     ) : (
-                        <p>No courses assigned. Please contact the administrator.</p>
+                        <p className="empty-state">No courses assigned. Please contact the administrator.</p>
                     )}
                 </div>
-            )}
+            </div>
         </div>
     );
 };
