@@ -11,7 +11,7 @@ import Instructorhome from './pages/Instructorhome';
 import ProtectedRoute from './components/ProtectedRoute';
 import ViewStudentProfile from './pages/ViewStudentProfile';
 import CourseDetails from './pages/CourseDetails';
-import StudentCourses from './pages/Studentcourses';
+import StudentCourses from './pages/StudentCourses';
 import ViewCourse from './pages/ViewCourse';
 import ViewQuestion from './pages/ViewQuestion';
 import StudentSection from './pages/StudentSection';
